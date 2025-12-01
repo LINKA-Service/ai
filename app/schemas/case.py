@@ -22,10 +22,22 @@ class ScammerInfoResponse(BaseModel):
 
 
 class CaseCreate(BaseModel):
-    case_type: Optional[CaseType] = None
+    case_type: CaseType
     case_type_other: Optional[str] = None
     statement: str
     scammer_infos: List[ScammerInfoCreate] = []
+
+    @field_validator("case_type_other")
+    @classmethod
+    def validate_case_type_other(cls, v, info):
+        case_type = info.data.get("case_type")
+        if case_type == CaseType.OTHER and not v:
+            raise ValueError("case_type_other is required when case_type is OTHER")
+        if case_type != CaseType.OTHER and v:
+            raise ValueError(
+                "case_type_other should only be provided when case_type is OTHER"
+            )
+        return v
 
 
 class CaseResponse(BaseModel):

@@ -22,7 +22,7 @@ class CaseService:
         status = await analyze_case(case.case_type, case.statement, case.scammer_infos)
         print(status)
         # if status == CaseStatus.REJECTED:
-        # raise UnprocessableEntityException("Invalid or inappropriate case content")
+        #     raise UnprocessableEntityException("Invalid or inappropriate case content")
 
         case_title = await generate_title(case.statement)
         db_case = Case(
