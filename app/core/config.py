@@ -12,6 +12,14 @@ class Settings(BaseSettings):
 
     openai_api_key: str
 
+    qdrant_host: str = "localhost"
+    qdrant_port: int = 6333
+    qdrant_collection: str = "scam_cases"
+
+    embedding_model: str = "nlpai-lab/KURE"
+    embedding_dimension: int = 1024
+    similarity_threshold: float = 0.75
+
     model_config = SettingsConfigDict(
         env_file=".env.local" if os.path.exists(".env.local") else ".env"
     )

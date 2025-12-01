@@ -46,3 +46,4 @@ class User(Base):
     consultation_messages = relationship(
         "ConsultationMessage", back_populates="author", cascade="all, delete-orphan"
     )
+    reviews = relationship("LawyerReview", back_populates="author", cascade="all, delete-orphan")

@@ -11,7 +11,10 @@ dependencies = [
     "pydantic>=2.12.5",
     "pydantic-settings>=2.12.0",
     "python-jose[cryptography]>=3.5.0",
+    "qdrant-client>=1.16.1",
     "redis>=7.1.0",
+    "sentence-transformers>=5.1.2",
     "sqlalchemy>=2.0.44",
+    "torch>=2.9.1",
     "uvicorn>=0.38.0",
 ]

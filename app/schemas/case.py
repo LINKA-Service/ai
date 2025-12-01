@@ -54,3 +54,13 @@ class CaseResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class SimilarCaseResponse(BaseModel):
+    case_id: int
+    title: str
+    case_type: str
+    statement: str
+    scammer_infos: List[dict]
+    similarity_score: float
+    created_at: Optional[str]

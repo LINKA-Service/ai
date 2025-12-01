@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 import redis.asyncio as redis
 
 from app.core.config import settings

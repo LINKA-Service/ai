@@ -3,24 +3,26 @@ from typing import List, Optional
 from sqlalchemy.orm import Session, joinedload
 
 from app.ai.case import analyze_case, generate_title
+from app.ai.retriever import VectorStore
 from app.core.exceptions import (
     ForbiddenException,
     NotFoundException,
     UnprocessableEntityException,
 )
 from app.models.case import Case, CaseStatus, ScammerInfo
-from app.models.user import User
 from app.schemas.case import CaseCreate
 
 
 class CaseService:
     def __init__(self, db: Session):
         self.db = db
+        self.vector_service = VectorStore()
 
     async def create_case(self, case: CaseCreate, user_id: int) -> Case:
         status = await analyze_case(case.case_type, case.statement, case.scammer_infos)
-        if status == CaseStatus.Rejected:
+        if status == CaseStatus.REJECTED:
             raise UnprocessableEntityException("Invalid or inappropriate case content")
+
         case_title = await generate_title(case.statement)
         db_case = Case(
             user_id=user_id,
@@ -41,6 +43,10 @@ class CaseService:
 
         self.db.commit()
         self.db.refresh(db_case)
+
+        if status == CaseStatus.APPROVED:
+            self.vector_service.index_case(db_case)
+
         return db_case
 
     def get_user_cases(self, user_id: int) -> List[Case]:
@@ -80,5 +86,12 @@ class CaseService:
         if db_case.user_id != user_id:
             raise ForbiddenException("Only case owner can delete")
 
+        self.vector_service.delete_case(case_id)
         self.db.delete(db_case)
         self.db.commit()
+
+    def get_similar_cases(
+        self, case_id: int, user_id: int, limit: int = 5
+    ) -> List[dict]:
+        case = self.get_user_case(case_id, user_id)
+        return self.vector_service.search_by_case(case, limit=limit)

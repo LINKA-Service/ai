@@ -15,32 +15,17 @@ class CaseStatus(str, enum.Enum):
 
 
 class CaseType(str, enum.Enum):
-    VOICE_PHISHING = "voice_phishing"  # 보이스피싱
-    SMISHING = "smishing"  # 스미싱
-    MESSENGER_PHISHING = "messenger_phishing"  # 메신저 피싱
-
-    # 금융 사기
-    LOAN_FRAUD = "loan_fraud"  # 대출 사기
-    INVESTMENT_FRAUD = "investment_fraud"  # 투자 사기
-
-    # 전자상거래 사기
-    ONLINE_SHOPPING_FRAUD = "online_shopping_fraud"  # 온라인 쇼핑 사기
+    DELIVERY = "delivery"  # 직거래 사기
+    INSURANCE = "insurance"  # 보험/서류 사기
+    DOOR_TO_DOOR = "door_to_door"  # 방문판매 사기
+    APPOINTMENT = "appointment"  # 사칭/위조 사기
+    RENTAL = "rental"  # 전세/월세 사기
+    ROMANCE = "romance"  # 로맨스 스캠
+    SMISHING = "smishing"  # 스미싱 사기
+    FALSE_ADVERTISING = "false_advertising"  # 허위 광고 사기
     SECONDHAND_FRAUD = "secondhand_fraud"  # 중고거래 사기
-
-    # 취업 사기
-    EMPLOYMENT_FRAUD = "employment_fraud"  # 취업/알바 사기
-
-    # 연애 사기
-    ROMANCE_SCAM = "romance_scam"  # 로맨스 스캠
-
-    # 부동산 사기
-    REAL_ESTATE_FRAUD = "real_estate_fraud"  # 부동산/전월세 사기
-
-    # 기타
-    IMPERSONATION_FRAUD = "impersonation_fraud"  # 사칭 사기
-    PHISHING_SITE = "phishing_site"  # 피싱 사이트
-    GAME_ITEM_FRAUD = "game_item_fraud"  # 게임 아이템 사기
-    TICKET_FRAUD = "ticket_fraud"  # 티켓/예매 사기
+    INVESTMENT_SCAM = "investment_scam"  # 투자 유인 사기
+    ACCOUNT_TAKEOVER = "account_takeover"  # 계정 도용 사기
     OTHER = "other"  # 기타
 
 

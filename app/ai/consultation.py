@@ -1,4 +1,3 @@
-# app/ai/consultation.py
 from openai import OpenAI
 
 from app.ai.prompts.loader import prompts
