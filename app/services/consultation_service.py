@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
-from app.ai.consultation import generate_response
+from app.ai.legal_consultant import LegalConsultant
 from app.core.exceptions import (
     ForbiddenException,
     NotFoundException,
@@ -19,6 +19,7 @@ from app.schemas.consultation import (
 class ConsultationService:
     def __init__(self, db: Session):
         self.db = db
+        self.legal_consultant = LegalConsultant()
 
     def create_consultation(
         self, consultation: ConsultationCreate, user_id: int
@@ -171,7 +172,7 @@ class ConsultationService:
             role = "assistant" if msg.author_id == 0 else "user"
             conversation_history.append({"role": role, "content": msg.content})
 
-        ai_response = generate_response(
+        ai_response = self.legal_consultant.generate_response(
             case_statement=consultation.case.statement,
             case_type=consultation.case.case_type.value,
             conversation_history=conversation_history,

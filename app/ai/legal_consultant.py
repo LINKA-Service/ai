@@ -5,7 +5,7 @@ from app.ai.prompts.loader import prompts
 from app.core.config import settings
 
 
-class ConsultationService:
+class LegalConsultant:
     def __init__(self):
         self.client = OpenAI(api_key=settings.openai_api_key)
         self.legal_search = LegalRepository()
