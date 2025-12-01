@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.123.0",
+    "huggingface-hub>=0.36.0",
     "openai>=2.8.1",
     "psycopg2-binary>=2.9.11",
     "pydantic>=2.12.5",

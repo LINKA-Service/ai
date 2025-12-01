@@ -12,6 +12,7 @@ class Settings(BaseSettings):
 
     openai_api_key: str
     law_api_key: str
+    hf_token: str
 
     qdrant_host: str = "localhost"
     qdrant_port: int = 6333

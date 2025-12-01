@@ -18,7 +18,8 @@ class Lawyer(Base):
     __tablename__ = "lawyers"
 
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True, nullable=False)
+    lawyer_id = Column(String, unique=True, index=True, nullable=False)
+    lawyer_id_changed_at = Column(DateTime(timezone=True), nullable=True)
     hashed_password = Column(String, nullable=False)
     lawyer_name = Column(String, nullable=True)
     bio = Column(String, nullable=True)
@@ -58,11 +59,6 @@ class LawyerReview(Base):
     review = Column(String, nullable=False)
     created_at = Column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
-    )
-    updated_at = Column(
-        DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
     )
 
     author = relationship("User", back_populates="reviews")

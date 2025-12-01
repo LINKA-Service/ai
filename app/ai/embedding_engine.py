@@ -1,6 +1,7 @@
 from typing import List
 
 import torch
+from huggingface_hub import login
 from sentence_transformers import SentenceTransformer
 
 from app.core.config import settings
@@ -18,6 +19,8 @@ class EmbeddingEngine:
     def __init__(self):
         if self._initialized:
             return
+
+        login(token=settings.hf_token)
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
         self.model = SentenceTransformer(settings.embedding_model, device=device)
