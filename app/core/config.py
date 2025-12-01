@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     qdrant_port: int = 6333
     qdrant_collection: str = "scam_cases"
 
-    embedding_model: str = "nlpai-lab/KURE"
+    embedding_model: str = "nlpai-lab/KURE-v1"
     embedding_dimension: int = 1024
     similarity_threshold: float = 0.75
 
