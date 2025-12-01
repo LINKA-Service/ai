@@ -16,15 +16,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 
 def get_case_service(db: Session = Depends(get_db)) -> CaseService:
-    re
-
-
-    @router.get("/", response_model=List[CaseResponse])
-    async def list_my_cases(
-        current_user: Annotated[User, Depends(get_current_user)],
-        case_service: Annotated[CaseService, Depends(get_case_service)],
-    ):
-        return case_service.get_user_cases(current_user.id)turn CaseService(db)
+    return CaseService(db)
 
 
 async def get_current_user(
