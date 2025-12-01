@@ -3,10 +3,13 @@ from typing import List, Optional
 from sqlalchemy.orm import Session, joinedload
 
 from app.ai.case import analyze_case, generate_title
-from app.core.exceptions import UnprocessableEntityException
-from app.models.case import Case, ScammerInfo, CaseStatus
+from app.core.exceptions import (
+    ForbiddenException,
+    NotFoundException,
+    UnprocessableEntityException,
+)
+from app.models.case import Case, CaseStatus, ScammerInfo
 from app.models.user import User
-from app.core.exceptions import NotFoundException, ForbiddenException
 from app.schemas.case import CaseCreate
 
 
@@ -15,7 +18,7 @@ class CaseService:
         self.db = db
 
     async def create_case(self, case: CaseCreate, user_id: int) -> Case:
-        status = await analyze_case(case.case_type, case.statement, case.scammer_infos):
+        status = await analyze_case(case.case_type, case.statement, case.scammer_infos)
         if status == CaseStatus.Rejected:
             raise UnprocessableEntityException("Invalid or inappropriate case content")
         case_title = await generate_title(case.statement)
@@ -25,7 +28,7 @@ class CaseService:
             case_type_other=case.case_type_other,
             title=case_title,
             statement=case.statement,
-            status=status
+            status=status,
         )
         self.db.add(db_case)
         self.db.flush()
@@ -42,11 +45,11 @@ class CaseService:
 
     def get_user_cases(self, user_id: int) -> List[Case]:
         return (
-               self.db.query(Case)
-               .options(joinedload(Case.scammer_infos))
-               .filter(Case.user_id == user_id)
-               .all()
-           )
+            self.db.query(Case)
+            .options(joinedload(Case.scammer_infos))
+            .filter(Case.user_id == user_id)
+            .all()
+        )
 
     def get_user_case(self, case_id: int, user_id: int) -> Case:
         case = (
@@ -63,11 +66,11 @@ class CaseService:
 
     def get_case(self, case_id: int) -> Optional[Case]:
         return (
-               self.db.query(Case)
-               .options(joinedload(Case.scammer_infos))
-               .filter(Case.id == case_id)
-               .first()
-           )
+            self.db.query(Case)
+            .options(joinedload(Case.scammer_infos))
+            .filter(Case.id == case_id)
+            .first()
+        )
 
     def delete_case(self, case_id: int, user_id: int) -> None:
         db_case = self.db.query(Case).filter(Case.id == case_id).first()

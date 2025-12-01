@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import case
+from app.api import case, consultation
 from app.db.redis import close_redis, get_redis
 
 
@@ -25,6 +25,9 @@ app.add_middleware(
 )
 
 app.include_router(case.router, prefix="/api/case", tags=["case"])
+app.include_router(
+    consultation.router, prefix="/api/consultation", tags=["consultation"]
+)
 
 
 @app.get("/")

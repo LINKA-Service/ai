@@ -1,3 +1,3 @@
-from . import case
+from . import case, consultation
 
-__all__ = ["case"]
+__all__ = ["case", "consultation"]

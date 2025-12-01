@@ -24,3 +24,9 @@ async def close_redis():
     if redis_client:
         await redis_client.close()
         redis_client = None
+
+
+async def is_blacklisted(token: str) -> bool:
+    client = await get_redis()
+    result = await client.exists(f"blacklist:{token}")
+    return result > 0
