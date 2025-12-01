@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from app.models.case import CaseStatus, CaseType, ScammerInfoType
 
@@ -23,9 +23,21 @@ class ScammerInfoResponse(BaseModel):
 
 class CaseCreate(BaseModel):
     case_type: CaseType
-    case_type_other: Optional[str]
+    case_type_other: Optional[str] = None
     statement: str
     scammer_infos: List[ScammerInfoCreate] = []
+
+    @field_validator("case_type_other")
+    @classmethod
+    def validate_case_type_other(cls, v, info):
+        case_type = info.data.get("case_type")
+        if case_type == CaseType.OTHER and not v:
+            raise ValueError("case_type_other is required when case_type is OTHER")
+        if case_type != CaseType.OTHER and v:
+            raise ValueError(
+                "case_type_other should only be provided when case_type is OTHER"
+            )
+        return v
 
 
 class CaseResponse(BaseModel):

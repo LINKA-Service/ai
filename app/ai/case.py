@@ -9,7 +9,7 @@ client = OpenAI(
 )
 
 
-def generate_title(statement: str):
+async def generate_title(statement: str):
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -22,7 +22,7 @@ def generate_title(statement: str):
     return response.choices[0].message.content.strip()
 
 
-def analyze_case(case_type: str, statement: str, scammer_infos: str):
+async def analyze_case(case_type: str, statement: str, scammer_infos: str):
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[

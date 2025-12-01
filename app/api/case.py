@@ -3,7 +3,7 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends
 
 from app.core.deps import get_case_service, get_current_user
-from app.core.exceptions import NotFoundException
+from app.core.exceptions import ForbiddenException, NotFoundException
 from app.models.user import User
 from app.schemas.case import CaseCreate, CaseResponse
 from app.services.case_service import CaseService
@@ -20,7 +20,7 @@ async def list_my_cases(
 
 
 @router.post("/", response_model=CaseResponse, status_code=201)
-def create_case(
+async def create_case(
     case_data: CaseCreate,
     current_user: Annotated[User, Depends(get_current_user)],
     case_service: Annotated[CaseService, Depends(get_case_service)],
@@ -35,12 +35,7 @@ async def get_case_detail(
     current_user: Annotated[User, Depends(get_current_user)],
     case_service: Annotated[CaseService, Depends(get_case_service)],
 ):
-    case = case_service.get_case(case_id)
-    if not case:
-        raise NotFoundException("Case not found")
-    if case.user_id != current_user.id:
-        raise ForbiddenException("Access denied")
-    return case
+    return case_service.get_user_case(case_id, current_user.id)
 
 
 @router.delete("/{case_id}")

@@ -11,12 +11,17 @@ from app.db.database import get_db
 from app.db.redis import is_blacklisted
 from app.models.user import User
 from app.services.case_service import CaseService
+from app.services.consultation_service import ConsultationService
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 
 def get_case_service(db: Session = Depends(get_db)) -> CaseService:
     return CaseService(db)
+
+
+def get_consultation_service(db: Session = Depends(get_db)) -> ConsultationService:
+    return ConsultationService(db)
 
 
 async def get_current_user(
@@ -29,13 +34,14 @@ async def get_current_user(
         payload = jwt.decode(
             token, settings.secret_key, algorithms=[settings.algorithm]
         )
-        user_id: int = payload.get("sub")
+        user_id = payload.get("sub")
         if user_id is None:
             raise UnauthorizedException("Invalid authentication credentials")
-    except JWTError:
+        user_id = int(user_id)
+    except (JWTError, ValueError):
         raise UnauthorizedException("Invalid authentication credentials")
 
-    user = db.query(User).filter(User.id == int(user_id)).first()
+    user = db.query(User).filter(User.id == user_id).first()
     if user is None:
         raise UnauthorizedException("User not found")
     return user
