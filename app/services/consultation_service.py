@@ -2,6 +2,7 @@ from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
+from app.ai.consultation import generate_consultation_response
 from app.core.exceptions import (
     ForbiddenException,
     NotFoundException,
@@ -148,45 +149,61 @@ class ConsultationService:
         self.db.delete(db_message)
         self.db.commit()
 
+    def create_ai_message(
+        self, consultation_id: int, user_message: str, user_id: int
+    ) -> ConsultationMessage:
+        consultation = self.get_consultation(consultation_id)
+        if not consultation:
+            raise NotFoundException("Consultation not found")
 
-def create_ai_message(
-    self, consultation_id: int, user_message: str, user_id: int
-) -> ConsultationMessage:
-    consultation = self.get_consultation(consultation_id)
-    if not consultation:
-        raise NotFoundException("Consultation not found")
+        if not self.can_access_consultation(consultation_id, user_id):
+            raise ForbiddenException("Access denied")
 
-    if not self.can_access_consultation(consultation_id, user_id):
-        raise ForbiddenException("Access denied")
+        user_msg = ConsultationMessage(
+            content=user_message,
+            consultation_id=consultation_id,
+            author_id=user_id,
+        )
+        self.db.add(user_msg)
+        self.db.flush()
 
-    user_msg = ConsultationMessage(
-        content=user_message,
-        consultation_id=consultation_id,
-        author_id=user_id,
-    )
-    self.db.add(user_msg)
-    self.db.flush()
+        conversation_history = []
+        for msg in consultation.messages[:-1]:
+            role = "assistant" if msg.author_id == 0 else "user"
+            conversation_history.append({"role": role, "content": msg.content})
 
-    conversation_history = []
-    for msg in consultation.messages[:-1]:
-        role = "assistant" if msg.author_id == 0 else "user"
-        conversation_history.append({"role": role, "content": msg.content})
+        ai_response = generate_consultation_response(
+            case_statement=consultation.case.statement,
+            case_type=consultation.case.case_type.value,
+            conversation_history=conversation_history,
+            user_question=user_message,
+            include_legal_search=True,
+        )
 
-    ai_response = generate_consultation_response(
-        case_statement=consultation.case.statement,
-        case_type=consultation.case.case_type,
-        conversation_history=conversation_history,
-        user_question=user_message,
-    )
+        ai_msg = ConsultationMessage(
+            content=ai_response,
+            consultation_id=consultation_id,
+            author_id=0,
+        )
+        self.db.add(ai_msg)
+        self.db.commit()
+        self.db.refresh(user_msg)
+        self.db.refresh(ai_msg)
 
-    ai_msg = ConsultationMessage(
-        content=ai_response,
-        consultation_id=consultation_id,
-        author_id=0,
-    )
-    self.db.add(ai_msg)
-    self.db.commit()
-    self.db.refresh(user_msg)
-    self.db.refresh(ai_msg)
+        return ai_msg
 
-    return ai_msg
+    def can_access_consultation(self, consultation_id: int, user_id: int) -> bool:
+        consultation = self.get_consultation(consultation_id)
+        if not consultation:
+            return False
+
+        if consultation.author_id == user_id:
+            return True
+
+        if consultation.group_id:
+            group = (
+                self.db.query(Group).filter(Group.id == consultation.group_id).first()
+            )
+            if group and user_id in [m.id for m in group.members]:
+                return True
+        return False

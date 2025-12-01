@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
 
     openai_api_key: str
+    law_api_key: str
 
     qdrant_host: str = "localhost"
     qdrant_port: int = 6333
