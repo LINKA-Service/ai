@@ -14,8 +14,7 @@ class Settings(BaseSettings):
     law_api_key: str
     hf_token: str
 
-    qdrant_host: str = "localhost"
-    qdrant_port: int = 6333
+    qdrant_url: str = "http://localhost:6333"
     qdrant_collection: str = "scam_cases"
 
     embedding_model: str = "nlpai-lab/KURE-v1"

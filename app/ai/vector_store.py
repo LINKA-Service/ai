@@ -30,7 +30,7 @@ class VectorStore:
         if self._initialized:
             return
 
-        self.client = QdrantClient(host=settings.qdrant_host, port=settings.qdrant_port)
+        self.client = QdrantClient(url=settings.qdrant_url)
         self.collection_name = settings.qdrant_collection
         self.embedding_service = EmbeddingEngine()
         self._ensure_collection()
