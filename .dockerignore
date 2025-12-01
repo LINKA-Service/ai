@@ -1,0 +1,55 @@
+# UV virtual environment (will be recreated inside Docker)
+.venv/
+venv/
+
+# Git related
+.git/
+.gitignore
+.gitattributes
+
+# Python compiled files and caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment variables (sensitive data)
+*.env
+
+# Documentation
+README.md
+docs/
+*.md
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Logs
+*.log
+logs/
+
+# Development files
+docker-compose.override.yml
+Makefile
+
+# Config files not needed in production
+.editorconfig
+.pre-commit-config.yaml
+
+# OS generated files
+.DS_Store
+Thumbs.db
