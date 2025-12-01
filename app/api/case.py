@@ -25,6 +25,7 @@ async def create_case(
     current_user: Annotated[User, Depends(get_current_user)],
     case_service: Annotated[CaseService, Depends(get_case_service)],
 ):
+    print(case_data)
     case = case_service.create_case(case_data, current_user.id)
     return case
 
