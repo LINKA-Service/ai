@@ -12,7 +12,7 @@ from qdrant_client.models import (
     VectorParams,
 )
 
-from app.ai.embedder import EmbeddingEngine
+from app.ai.embedding_engine import EmbeddingEngine
 from app.core.config import settings
 from app.models.case import Case
 

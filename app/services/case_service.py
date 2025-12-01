@@ -3,7 +3,7 @@ from typing import List, Optional
 from sqlalchemy.orm import Session, joinedload
 
 from app.ai.case import analyze_case, generate_title
-from app.ai.retriever import VectorStore
+from app.ai.vector_store import VectorStore
 from app.core.exceptions import (
     ForbiddenException,
     NotFoundException,
@@ -16,7 +16,7 @@ from app.schemas.case import CaseCreate
 class CaseService:
     def __init__(self, db: Session):
         self.db = db
-        self.vector_service = VectorStore()
+        self.vector_store = VectorStore()
 
     async def create_case(self, case: CaseCreate, user_id: int) -> Case:
         status = await analyze_case(case.case_type, case.statement, case.scammer_infos)
@@ -45,7 +45,7 @@ class CaseService:
         self.db.refresh(db_case)
 
         if status == CaseStatus.APPROVED:
-            self.vector_service.index_case(db_case)
+            self.vector_store.index_case(db_case)
 
         return db_case
 
@@ -86,7 +86,7 @@ class CaseService:
         if db_case.user_id != user_id:
             raise ForbiddenException("Only case owner can delete")
 
-        self.vector_service.delete_case(case_id)
+        self.vector_store.delete_case(case_id)
         self.db.delete(db_case)
         self.db.commit()
 
@@ -94,4 +94,4 @@ class CaseService:
         self, case_id: int, user_id: int, limit: int = 5
     ) -> List[dict]:
         case = self.get_user_case(case_id, user_id)
-        return self.vector_service.search_by_case(case, limit=limit)
+        return self.vector_store.search_by_case(case, limit=limit)

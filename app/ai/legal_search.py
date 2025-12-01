@@ -1,11 +1,11 @@
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import requests
 
 from app.core.config import settings
 
 
-class LegalSearchService:
+class LegalRepository:
     def __init__(self):
         self.base_url = "https://www.law.go.kr/DRF/lawSearch.do"
         self.api_key = settings.law_api_key

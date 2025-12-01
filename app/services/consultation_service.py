@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
-from app.ai.consultation import generate_consultation_response
+from app.ai.consultation import generate_response
 from app.core.exceptions import (
     ForbiddenException,
     NotFoundException,
@@ -89,7 +89,6 @@ class ConsultationService:
     def create_message(
         self, consultation_id: int, message: ConsultationMessageCreate, user_id: int
     ) -> ConsultationMessage:
-        # Consultation 존재 확인
         consultation = (
             self.db.query(Consultation)
             .filter(Consultation.id == consultation_id)
@@ -172,7 +171,7 @@ class ConsultationService:
             role = "assistant" if msg.author_id == 0 else "user"
             conversation_history.append({"role": role, "content": msg.content})
 
-        ai_response = generate_consultation_response(
+        ai_response = generate_response(
             case_statement=consultation.case.statement,
             case_type=consultation.case.case_type.value,
             conversation_history=conversation_history,
