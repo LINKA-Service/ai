@@ -23,7 +23,9 @@ class EmbeddingEngine:
         login(token=settings.hf_token)
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.model = SentenceTransformer(settings.embedding_model, device=device)
+        self.model = SentenceTransformer(
+            settings.embedding_model, device=device, token=settings.hf_token
+        )
         self._initialized = True
 
     def encode_query(self, text: str) -> List[float]:
