@@ -20,8 +20,9 @@ class CaseService:
 
     async def create_case(self, case: CaseCreate, user_id: int) -> Case:
         status = await analyze_case(case.case_type, case.statement, case.scammer_infos)
-        if status == CaseStatus.REJECTED:
-            raise UnprocessableEntityException("Invalid or inappropriate case content")
+        print(status)
+        # if status == CaseStatus.REJECTED:
+        # raise UnprocessableEntityException("Invalid or inappropriate case content")
 
         case_title = await generate_title(case.statement)
         db_case = Case(
@@ -30,7 +31,7 @@ class CaseService:
             case_type_other=case.case_type_other,
             title=case_title,
             statement=case.statement,
-            status=status,
+            status=CaseStatus.ACCEPTED,
         )
         self.db.add(db_case)
         self.db.flush()
