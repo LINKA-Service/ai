@@ -3,15 +3,11 @@ version: "3.8"
 services:
     backend:
         build: .
-        container_name: linka-ai-backend
+        container_name: linka-backend
         ports:
-            - "8080:8080"
-        environment:
-            DATABASE_URL: ${DATABASE_URL}
-            REDIS_URL: ${REDIS_URL}
-            SECRET_KEY: ${SECRET_KEY}
-            ALGORITHM: HS256
-            ACCESS_TOKEN_EXPIRE_MINUTES: 30
+            - "8000:8000"
+        env_file:
+            - .env.local
         volumes:
             - .:/app
-        command: uv run uvicorn main:app --host 0.0.0.0 --port 8080 --reload
+        command: uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
