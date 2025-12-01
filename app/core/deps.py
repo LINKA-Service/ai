@@ -10,23 +10,21 @@ from app.core.exceptions import UnauthorizedException
 from app.db.database import get_db
 from app.db.redis import is_blacklisted
 from app.models.user import User
-from app.services.auth_service import AuthService
-from app.services.group_service import GroupService
-from app.services.user_service import UserService
+from app.services.case_service import CaseService
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 
-def get_auth_service(db: Session = Depends(get_db)) -> AuthService:
-    return AuthService(db)
+def get_case_service(db: Session = Depends(get_db)) -> CaseService:
+    re
 
 
-def get_user_service(db: Session = Depends(get_db)) -> UserService:
-    return UserService(db)
-
-
-def get_group_service(db: Session = Depends(get_db)) -> GroupService:
-    return GroupService(db)
+    @router.get("/", response_model=List[CaseResponse])
+    async def list_my_cases(
+        current_user: Annotated[User, Depends(get_current_user)],
+        case_service: Annotated[CaseService, Depends(get_case_service)],
+    ):
+        return case_service.get_user_cases(current_user.id)turn CaseService(db)
 
 
 async def get_current_user(

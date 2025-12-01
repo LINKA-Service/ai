@@ -1,0 +1,53 @@
+from typing import Annotated, List
+
+from fastapi import APIRouter, Depends
+
+from app.core.deps import get_case_service, get_current_user
+from app.core.exceptions import NotFoundException
+from app.models.user import User
+from app.schemas.case import CaseCreate, CaseResponse
+from app.services.case_service import CaseService
+
+router = APIRouter()
+
+
+@router.get("/", response_model=List[CaseResponse])
+async def list_my_cases(
+    current_user: Annotated[User, Depends(get_current_user)],
+    case_service: Annotated[CaseService, Depends(get_case_service)],
+):
+    return case_service.get_user_cases(current_user.id)
+
+
+@router.post("/", response_model=CaseResponse, status_code=201)
+def create_case(
+    case_data: CaseCreate,
+    current_user: Annotated[User, Depends(get_current_user)],
+    case_service: Annotated[CaseService, Depends(get_case_service)],
+):
+    case = case_service.create_case(case_data, current_user.id)
+    return case
+
+
+@router.get("/{case_id}", response_model=CaseResponse)
+async def get_case_detail(
+    case_id: int,
+    current_user: Annotated[User, Depends(get_current_user)],
+    case_service: Annotated[CaseService, Depends(get_case_service)],
+):
+    case = case_service.get_case(case_id)
+    if not case:
+        raise NotFoundException("Case not found")
+    if case.user_id != current_user.id:
+        raise ForbiddenException("Access denied")
+    return case
+
+
+@router.delete("/{case_id}")
+async def delete_case_by_id(
+    case_id: int,
+    current_user: Annotated[User, Depends(get_current_user)],
+    case_service: Annotated[CaseService, Depends(get_case_service)],
+):
+    case_service.delete_case(case_id, current_user.id)
+    return {"message": "Case deleted successfully"}

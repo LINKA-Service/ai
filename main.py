@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# from app.api import
+from app.api import case
 from app.db.redis import close_redis, get_redis
 
 
@@ -24,12 +24,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(case.router, prefix="/api/case", tags=["case"])
+
 
 @app.get("/")
 async def root():
     return {"message": "LINKA AI-Backend API"}
-
-
-@app.get("/health")
-async def health():
-    return {"status": "healthy"}
