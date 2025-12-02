@@ -26,18 +26,24 @@ class CaseService:
         case_title = await generate_title(case.statement)
         db_case = Case(
             user_id=user_id,
-            case_type=case.case_type,
+            case_type=case.case_type.value
+            if hasattr(case.case_type, "value")
+            else case.case_type,  # ← 이렇게 수정
             case_type_other=case.case_type_other,
             title=case_title,
             statement=case.statement,
-            status=status,
+            status=status.value if hasattr(status, "value") else status,  # ← 이것도
         )
         self.db.add(db_case)
         self.db.flush()
 
         for info in case.scammer_infos:
             scammer_info = ScammerInfo(
-                case_id=db_case.id, info_type=info.info_type, value=info.value
+                case_id=db_case.id,
+                info_type=info.info_type.value
+                if hasattr(info.info_type, "value")
+                else info.info_type,  # ← 이것도
+                value=info.value,
             )
             self.db.add(scammer_info)
 

@@ -13,6 +13,13 @@ class ScammerInfoCreate(BaseModel):
     class Config:
         use_enum_values = True
 
+    @field_validator("info_type", mode="before")
+    @classmethod
+    def normalize_info_type(cls, v):
+        if isinstance(v, str):
+            return v.lower()
+        return v
+
 
 class ScammerInfoResponse(BaseModel):
     id: int
