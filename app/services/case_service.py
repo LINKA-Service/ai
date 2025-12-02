@@ -13,6 +13,14 @@ from app.models.case import Case, CaseStatus, ScammerInfo
 from app.schemas.case import CaseCreate
 
 
+def to_db_value(enum_val):
+    if hasattr(enum_val, "value"):
+        return enum_val.value
+    if isinstance(enum_val, str):
+        return enum_val.lower()
+    return str(enum_val).lower()
+
+
 class CaseService:
     def __init__(self, db: Session):
         self.db = db
@@ -25,32 +33,22 @@ class CaseService:
 
         case_title = await generate_title(case.statement)
 
-        case_type_value = (
-            case.case_type.value
-            if hasattr(case.case_type, "value")
-            else str(case.case_type).lower()
-        )
-        status_value = status.value if hasattr(status, "value") else str(status).lower()
-
         db_case = Case(
             user_id=user_id,
-            case_type=case_type_value,
+            case_type=to_db_value(case.case_type),
             case_type_other=case.case_type_other,
             title=case_title,
             statement=case.statement,
-            status=status_value,
+            status=to_db_value(status),
         )
         self.db.add(db_case)
         self.db.flush()
 
         for info in case.scammer_infos:
-            info_type_value = (
-                info.info_type.value
-                if hasattr(info.info_type, "value")
-                else str(info.info_type).lower()
-            )
             scammer_info = ScammerInfo(
-                case_id=db_case.id, info_type=info_type_value, value=info.value
+                case_id=db_case.id,
+                info_type=to_db_value(info.info_type),
+                value=info.value,
             )
             self.db.add(scammer_info)
 
