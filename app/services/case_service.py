@@ -33,32 +33,28 @@ class CaseService:
 
         case_title = await generate_title(case.statement)
 
+        print(f"DEBUG case.case_type: {case.case_type}, type: {type(case.case_type)}")
+        print(f"DEBUG status: {status}, type: {type(status)}")
+
+        case_type_value = to_db_value(case.case_type)
+        status_value = to_db_value(status)
+
+        print(f"DEBUG case_type_value: {case_type_value}")
+        print(f"DEBUG status_value: {status_value}")
+
         db_case = Case(
             user_id=user_id,
-            case_type=to_db_value(case.case_type),
+            case_type=case_type_value,
             case_type_other=case.case_type_other,
             title=case_title,
             statement=case.statement,
-            status=to_db_value(status),
+            status=status_value,
         )
+
+        print(f"DEBUG db_case.case_type BEFORE add: {db_case.case_type}")
         self.db.add(db_case)
+        print(f"DEBUG db_case.case_type AFTER add: {db_case.case_type}")
         self.db.flush()
-
-        for info in case.scammer_infos:
-            scammer_info = ScammerInfo(
-                case_id=db_case.id,
-                info_type=to_db_value(info.info_type),
-                value=info.value,
-            )
-            self.db.add(scammer_info)
-
-        self.db.commit()
-        self.db.refresh(db_case)
-
-        if status == CaseStatus.APPROVED:
-            self.vector_store.index_case(db_case)
-
-        return db_case
 
     def get_user_cases(self, user_id: int) -> List[Case]:
         return (
