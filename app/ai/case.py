@@ -1,3 +1,5 @@
+from typing import List
+
 from openai import OpenAI
 
 from app.ai.prompts.loader import prompts
