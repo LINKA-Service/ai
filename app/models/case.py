@@ -35,7 +35,9 @@ class Case(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    case_type = Column(SQLEnum(CaseType), nullable=False)  # 피해 종류
+    case_type = Column(
+        SQLEnum(CaseType, native_enum=False), nullable=False
+    )  # 피해 종류
     case_type_other = Column(String(100), nullable=True)  # 기타 피해 종류
     title = Column(String(200), nullable=False)  # 진술 기반으로 AI가 생성한 사건명
 
@@ -74,7 +76,7 @@ class ScammerInfo(Base):
     id = Column(Integer, primary_key=True, index=True)
     case_id = Column(Integer, ForeignKey("cases.id"), nullable=False)
 
-    info_type = Column(SQLEnum(ScammerInfoType), nullable=False)
+    info_type = Column(SQLEnum(ScammerInfoType, native_enum=False), nullable=False)
     value = Column(String(200), nullable=False)
 
     case = relationship("Case", back_populates="scammer_infos")
