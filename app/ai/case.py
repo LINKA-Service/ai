@@ -2,7 +2,8 @@ from openai import OpenAI
 
 from app.ai.prompts.loader import prompts
 from app.core.config import settings
-from app.models.case import CaseStatus
+from app.models.case import CaseStatus, CaseType
+from app.schemas.case import ScammerInfoCreate
 
 client = OpenAI(
     api_key=settings.openai_api_key,
@@ -22,7 +23,9 @@ async def generate_title(statement: str):
     return response.choices[0].message.content.strip()
 
 
-async def analyze_case(case_type: str, statement: str, scammer_infos: str):
+async def analyze_case(
+    case_type: CaseType, statement: str, scammer_infos: List[ScammerInfoCreate]
+):
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
