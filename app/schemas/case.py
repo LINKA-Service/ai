@@ -1,110 +1,74 @@
-import enum
-from datetime import datetime, timezone
-
-from sqlalchemy import (
-    Column,
-    DateTime,
-    ForeignKey,
-    Integer,
-    String,
-    Text,
-    TypeDecorator,
-)
-from sqlalchemy.orm import relationship
-
-from app.db.database import Base
+from datetime import datetime
+from typing import List, Optional
 
 
-class CaseStatus(str, enum.Enum):
-    PENDING = "pending"
-    APPROVED = "approved"
-    REJECTED = "rejected"
+class ScammerInfoCreate(BaseModel):
+    info_type: ScammerInfoType
+    value: str = Field(..., max_length=200)
+
+    @field_validator("info_type", mode="before")
+    @classmethod
+    def normalize_info_type(cls, v):
+        if hasattr(v, "value"):
+            return v.value
+        if isinstance(v, str):
+            return v.lower()
+        return v
 
 
-class CaseType(str, enum.Enum):
-    DELIVERY = "delivery"
-    INSURANCE = "insurance"
-    DOOR_TO_DOOR = "door_to_door"
-    APPOINTMENT = "appointment"
-    RENTAL = "rental"
-    ROMANCE = "romance"
-    SMISHING = "smishing"
-    FALSE_ADVERTISING = "false_advertising"
-    SECONDHAND_FRAUD = "secondhand_fraud"
-    INVESTMENT_SCAM = "investment_scam"
-    ACCOUNT_TAKEOVER = "account_takeover"
-    OTHER = "other"
+class ScammerInfoResponse(BaseModel):
+    id: int
+    case_id: int
+    info_type: ScammerInfoType
+    value: str
+
+    class Config:
+        from_attributes = True
 
 
-class LowerCaseEnum(TypeDecorator):
-    impl = String
-    cache_ok = True
+class CaseCreate(BaseModel):
+    case_type: CaseType
+    case_type_other: Optional[str] = None
+    statement: str
+    scammer_infos: List[ScammerInfoCreate] = []
 
-    def __init__(self, enum_class, *args, **kwargs):
-        self.enum_class = enum_class
-        super().__init__(*args, **kwargs)
+    @field_validator("case_type", mode="before")
+    @classmethod
+    def normalize_case_type(cls, v):
+        if hasattr(v, "value"):
+            return v.value
+        if isinstance(v, str):
+            return v.lower()
+        return v
 
-    def process_bind_param(self, value, dialect):
-        if value is None:
-            return value
-        if hasattr(value, "value"):
-            return value.value
-        if isinstance(value, str):
-            return value.lower()
-        return str(value).lower()
-
-    def process_result_value(self, value, dialect):
-        if value is not None:
-            return self.enum_class(value)
-        return value
-
-
-class Case(Base):
-    __tablename__ = "cases"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-
-    case_type = Column(LowerCaseEnum(CaseType, length=50), nullable=False)
-    case_type_other = Column(String(100), nullable=True)
-    title = Column(String(200), nullable=False)
-
-    statement = Column(Text, nullable=False)
-
-    status = Column(
-        LowerCaseEnum(CaseStatus, length=20), default=CaseStatus.PENDING, nullable=False
-    )
-
-    created_at = Column(
-        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
-    )
-    updated_at = Column(
-        DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
-    )
-
-    user = relationship("User", back_populates="cases")
-    scammer_infos = relationship(
-        "ScammerInfo", back_populates="case", cascade="all, delete-orphan"
-    )
+    @model_validator(mode="after")
+    def validate_case_type_other(self):
+        if self.case_type == "other" and not self.case_type_other:
+            raise ValueError("case_type_other is required when case_type is OTHER")
+        if self.case_type != "other" and self.case_type_other:
+            raise ValueError(
+                "case_type_other should only be provided when case_type is OTHER"
+            )
+        return self
 
 
-class ScammerInfoType(str, enum.Enum):
-    NAME = "name"
-    NICKNAME = "nickname"
-    PHONE = "phone"
-    ACCOUNT = "account"
-    SNS_ID = "sns_id"
+class CaseResponse(BaseModel):
+    id: int
+    user_id: int
+    case_type: CaseType
+    case_type_other: Optional[str]
+
+    scammer_infos: List[ScammerInfoResponse]
+
+    class Config:
+        from_attributes = True
 
 
-class ScammerInfo(Base):
-    __tablename__ = "scammer_infos"
-
-    id = Column(Integer, primary_key=True, index=True)
-    case_id = Column(Integer, ForeignKey("cases.id"), nullable=False)
-
-    info_type = Column(LowerCaseEnum(ScammerInfoType, length=20), nullable=False)
-    value = Column(String(200), nullable=False)
-
-    case = relationship("Case", back_populates="scammer_infos")
+class SimilarCaseResponse(BaseModel):
+    case_id: int
+    title: str
+    case_type: str
+    statement: str
+    scammer_infos: List[dict]
+    similarity_score: float
+    created_at: Optional[str]
