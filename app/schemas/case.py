@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, model_validator
 
 from app.models.case import CaseStatus, CaseType, ScammerInfoType
 
@@ -9,6 +9,9 @@ from app.models.case import CaseStatus, CaseType, ScammerInfoType
 class ScammerInfoCreate(BaseModel):
     info_type: ScammerInfoType
     value: str = Field(..., max_length=200)
+
+    class Config:
+        use_enum_values = True
 
 
 class ScammerInfoResponse(BaseModel):
@@ -21,14 +24,14 @@ class ScammerInfoResponse(BaseModel):
         from_attributes = True
 
 
-from pydantic import model_validator
-
-
 class CaseCreate(BaseModel):
     case_type: CaseType
     case_type_other: Optional[str] = None
     statement: str
     scammer_infos: List[ScammerInfoCreate] = []
+
+    class Config:
+        use_enum_values = True
 
     @model_validator(mode="after")
     def validate_case_type_other(self):
