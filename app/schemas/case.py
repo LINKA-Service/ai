@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, field_validator, Field,model_validator,
-from app.models.case import ScammerInfoType, CaseType, ScammerInfo
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+from app.models.case import CaseStatus, CaseType, ScammerInfoType
 
 
 class ScammerInfoCreate(BaseModel):
@@ -60,7 +61,11 @@ class CaseResponse(BaseModel):
     user_id: int
     case_type: CaseType
     case_type_other: Optional[str]
-
+    title: str
+    statement: str
+    status: CaseStatus
+    created_at: datetime
+    updated_at: datetime
     scammer_infos: List[ScammerInfoResponse]
 
     class Config:
