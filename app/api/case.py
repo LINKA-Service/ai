@@ -25,10 +25,6 @@ async def create_case(
     current_user: Annotated[User, Depends(get_current_user)],
     case_service: Annotated[CaseService, Depends(get_case_service)],
 ):
-    print("=== Received case_data ===")
-    print(f"case_type type: {type(case_data.case_type)}")
-    print(f"case_type value: {case_data.case_type}")
-    print(f"case_type repr: {repr(case_data.case_type)}")
     case = await case_service.create_case(case_data, current_user.id)
     return case
 

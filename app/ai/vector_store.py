@@ -125,8 +125,7 @@ class VectorStore:
             )
 
             return True
-        except Exception as e:
-            print(f"Error indexing case {case.id}: {e}")
+        except:
             return False
 
     def search_similar(
@@ -188,8 +187,7 @@ class VectorStore:
                 )
 
             return similar_cases
-        except Exception as e:
-            print(f"Error searching similar cases: {e}")
+        except:
             return []
 
     def search_by_case(
@@ -211,8 +209,7 @@ class VectorStore:
                 collection_name=self.collection_name, points_selector=[point_id]
             )
             return True
-        except Exception as e:
-            print(f"Error deleting case {case_id}: {e}")
+        except:
             return False
 
     def update_case(self, case: Case) -> bool:

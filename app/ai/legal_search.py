@@ -40,8 +40,7 @@ class LegalRepository:
                 )
 
             return precedents
-        except Exception as e:
-            print(f"Error searching precedents: {e}")
+        except:
             return []
 
     def search_laws(self, query: str, display: int = 5) -> List[Dict]:
@@ -73,8 +72,7 @@ class LegalRepository:
                 )
 
             return laws
-        except Exception as e:
-            print(f"Error searching laws: {e}")
+        except:
             return []
 
     def search_all(

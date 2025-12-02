@@ -33,14 +33,8 @@ class CaseService:
 
         case_title = await generate_title(case.statement)
 
-        print(f"DEBUG case.case_type: {case.case_type}, type: {type(case.case_type)}")
-        print(f"DEBUG status: {status}, type: {type(status)}")
-
         case_type_value = to_db_value(case.case_type)
         status_value = to_db_value(status)
-
-        print(f"DEBUG case_type_value: {case_type_value}")
-        print(f"DEBUG status_value: {status_value}")
 
         db_case = Case(
             user_id=user_id,
@@ -51,9 +45,7 @@ class CaseService:
             status=status_value,
         )
 
-        print(f"DEBUG db_case.case_type BEFORE add: {db_case.case_type}")
         self.db.add(db_case)
-        print(f"DEBUG db_case.case_type AFTER add: {db_case.case_type}")
         self.db.flush()
 
     def get_user_cases(self, user_id: int) -> List[Case]:
