@@ -10,6 +10,7 @@ from sqlalchemy import (
     Text,
     TypeDecorator,
 )
+from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
@@ -37,6 +38,8 @@ class CaseType(str, enum.Enum):
 
 
 class LowerCaseEnum(TypeDecorator):
+    """Enum을 항상 소문자로 저장"""
+
     impl = String
     cache_ok = True
 
