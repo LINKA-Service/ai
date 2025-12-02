@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.models.case import CaseStatus, CaseType, ScammerInfoType
 
@@ -32,6 +32,13 @@ class CaseCreate(BaseModel):
 
     class Config:
         use_enum_values = True
+
+    @field_validator("case_type", mode="before")
+    @classmethod
+    def normalize_case_type(cls, v):
+        if isinstance(v, str):
+            return v.lower()
+        return v
 
     @model_validator(mode="after")
     def validate_case_type_other(self):
