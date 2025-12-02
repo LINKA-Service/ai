@@ -33,20 +33,38 @@ class CaseService:
 
         case_title = await generate_title(case.statement)
 
-        case_type_value = to_db_value(case.case_type)
-        status_value = to_db_value(status)
-
         db_case = Case(
             user_id=user_id,
-            case_type=case_type_value,
+            case_type=to_db_value(case.case_type),
             case_type_other=case.case_type_other,
             title=case_title,
             statement=case.statement,
-            status=status_value,
+            status=to_db_value(status),
         )
-
         self.db.add(db_case)
         self.db.flush()
+
+        for info in case.scammer_infos:
+            scammer_info = ScammerInfo(
+                case_id=db_case.id,
+                info_type=to_db_value(info.info_type),
+                value=info.value,
+            )
+            self.db.add(scammer_info)
+
+        self.db.commit()
+
+        db_case = (
+            self.db.query(Case)
+            .options(joinedload(Case.scammer_infos))
+            .filter(Case.id == db_case.id)
+            .first()
+        )
+
+        if status == CaseStatus.APPROVED:
+            self.vector_store.index_case(db_case)
+
+        return db_case
 
     def get_user_cases(self, user_id: int) -> List[Case]:
         return (
