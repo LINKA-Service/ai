@@ -10,12 +10,11 @@ class ScammerInfoCreate(BaseModel):
     info_type: ScammerInfoType
     value: str = Field(..., max_length=200)
 
-    class Config:
-        use_enum_values = True
-
     @field_validator("info_type", mode="before")
     @classmethod
     def normalize_info_type(cls, v):
+        if hasattr(v, "value"):
+            return v.value
         if isinstance(v, str):
             return v.lower()
         return v
@@ -37,21 +36,20 @@ class CaseCreate(BaseModel):
     statement: str
     scammer_infos: List[ScammerInfoCreate] = []
 
-    class Config:
-        use_enum_values = True
-
     @field_validator("case_type", mode="before")
     @classmethod
     def normalize_case_type(cls, v):
+        if hasattr(v, "value"):
+            return v.value
         if isinstance(v, str):
             return v.lower()
         return v
 
     @model_validator(mode="after")
     def validate_case_type_other(self):
-        if self.case_type == CaseType.OTHER and not self.case_type_other:
+        if self.case_type == "other" and not self.case_type_other:
             raise ValueError("case_type_other is required when case_type is OTHER")
-        if self.case_type != CaseType.OTHER and self.case_type_other:
+        if self.case_type != "other" and self.case_type_other:
             raise ValueError(
                 "case_type_other should only be provided when case_type is OTHER"
             )
