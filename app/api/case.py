@@ -26,7 +26,7 @@ async def create_case(
     case_service: Annotated[CaseService, Depends(get_case_service)],
 ):
     print(case_data)
-    case = case_service.create_case(case_data, current_user.id)
+    case = await case_service.create_case(case_data, current_user.id)
     return case
 
 
